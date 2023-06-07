@@ -1,0 +1,8 @@
+langchain
+openai
+unstructured
+tabulate
+cchardet
+pdf2image
+
+python-pptx
