@@ -47,7 +47,6 @@ prompt = PromptTemplate(
 )
 
 chain = LLMChain(llm=llm, prompt=prompt)
-
-
-
-print(chain.run(documents[0].page_content))
+result = chain.run(documents[0].page_content)
+slides = output_parser.parse(result)
+print(slides)

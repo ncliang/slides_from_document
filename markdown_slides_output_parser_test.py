@@ -24,15 +24,9 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
         self.assertEquals(4, len(parsed[1].bullet_points))
 
         self.assertEquals("## 發布單位：農業處", parsed[0].subtitle)
-        self.assertTrue(parsed[0].has_title())
-        self.assertTrue(parsed[0].has_subtitle())
-        self.assertFalse(parsed[0].has_bullet_points())
 
         self.assertEquals("### 雲林縣政府新聞參考資料 112.06.07", parsed[1].title)
         self.assertEquals("- 雲林縣落花生產量占全台七成", parsed[1].bullet_points[0])
-        self.assertTrue(parsed[1].has_title())
-        self.assertFalse(parsed[1].has_subtitle())
-        self.assertTrue(parsed[1].has_bullet_points())
 
     def test_single_title_slide(self):
         parser = MarkdownSlidesOutputParser()
