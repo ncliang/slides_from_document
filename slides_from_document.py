@@ -1,8 +1,7 @@
 import argparse
 import os
-from functools import reduce
 
-from langchain import PromptTemplate, LLMChain, OpenAI
+from langchain import PromptTemplate, LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import UnstructuredURLLoader, UnstructuredFileLoader
 from langchain.schema import Document
