@@ -53,6 +53,7 @@ prompt = PromptTemplate(
 print(f"Sending content to ChatGPT for slide generation.")
 chain = LLMChain(llm=llm, prompt=prompt)
 result = chain.run(documents[0].page_content)
+print(f"Response from ChatGPT: \n{result}")
 slides = output_parser.parse(result)
 assert slides
 

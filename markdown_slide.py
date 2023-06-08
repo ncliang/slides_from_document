@@ -34,8 +34,32 @@ class SlideWithSubtitle(SlideWithTitle):
         subtitle.text = self.subtitle
 
 
+class BulletPoint(object):
+    text: str
+    level: int  # the indentation level
+
+    def __init__(self, text, level):
+        self.text = text
+        self.level = level
+
+    @staticmethod
+    def _get_content_only(line):
+        return line.split(" ", 1)[1]
+
+    @staticmethod
+    def from_bullet_point_line(line):
+        leading_spaces = len(line) - len(line.lstrip(" "))
+        return BulletPoint(
+            BulletPoint._get_content_only(line.lstrip(' ')),
+            int(leading_spaces / 2)
+        )
+
+    def __repr__(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=2)
+
+
 class SlideWithBulletPoints(SlideWithTitle):
-    bullet_points: List
+    bullet_points: List[BulletPoint]
 
     def __init__(self):
         super().__init__()
@@ -53,8 +77,8 @@ class SlideWithBulletPoints(SlideWithTitle):
         title_shape.text = self.title
 
         tf = body_shape.text_frame
-        tf.text = self.bullet_points.pop(0)
+        tf.text = self.bullet_points.pop(0).text
         for bp in self.bullet_points:
             p = tf.add_paragraph()
-            p.text = bp
-            p.level = 0
+            p.text = bp.text
+            p.level = int(bp.level)

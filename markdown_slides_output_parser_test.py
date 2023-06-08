@@ -26,7 +26,7 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
         self.assertEquals("發布單位：農業處", parsed[0].subtitle)
 
         self.assertEquals("雲林縣政府新聞參考資料 112.06.07", parsed[1].title)
-        self.assertEquals("雲林縣落花生產量占全台七成", parsed[1].bullet_points[0])
+        self.assertEquals("雲林縣落花生產量占全台七成", parsed[1].bullet_points[0].text)
 
     def test_single_title_slide(self):
         parser = MarkdownSlidesOutputParser()
@@ -88,3 +88,22 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
         self.assertEquals(1, len(parsed))
         self.assertTrue(isinstance(parsed[0], SlideWithBulletPoints))
         self.assertEquals(4, len(parsed[0].bullet_points))
+
+    def test_nested_bullet_points(self):
+        parser = MarkdownSlidesOutputParser()
+        parsed = parser.parse("""### 招生及開班訊息
+
+- 招生時間：112年3月21日起
+- 開班時間：112年5月4日起
+- 招生及開班訊息公佈於以下管道：
+  - 勞動暨青年事務發展處-公務公告
+  - 勞動部勞動力發展署臺灣就業通網站
+  - 勞動部勞動力發展署雲嘉南分署
+  - 斗六就業中心、虎尾就業中心、各鄉、鎮、市公所就業服務台
+""")
+        self.assertEquals(1, len(parsed))
+        self.assertEquals("招生時間：112年3月21日起", parsed[0].bullet_points[0].text)
+        self.assertEquals(0, parsed[0].bullet_points[0].level)
+        self.assertEquals("斗六就業中心、虎尾就業中心、各鄉、鎮、市公所就業服務台", parsed[0].bullet_points[-1].text)
+        self.assertEquals(1, parsed[0].bullet_points[-1].level)
+

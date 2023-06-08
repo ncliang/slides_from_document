@@ -1,6 +1,6 @@
 from langchain.schema import BaseOutputParser, T
 
-from markdown_slide import SlideWithBulletPoints, SlideWithSubtitle
+from markdown_slide import SlideWithBulletPoints, SlideWithSubtitle, BulletPoint
 
 
 class MarkdownSlidesOutputParser(BaseOutputParser):
@@ -21,6 +21,10 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
     def _get_content_only(line):
         return line.split(" ", 1)[1]
 
+    @staticmethod
+    def _is_bullet_point(cur):
+        return cur.startswith("-") or cur.startswith("*") or cur[0].isdigit() or cur.startswith(" ")
+
     def parse(self, text: str) -> T:
         lines = text.splitlines()
         lines = [line for line in lines if line]  # remove empty lines
@@ -33,14 +37,14 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
         # 演算法是從後面往前看。看到bullet point就加到目前的
         while lines:
             cur = lines.pop(-1)
-            if cur.startswith("-") or cur.startswith("*") or cur[0].isdigit():
+            if self._is_bullet_point(cur):
                 if not cur_slide:
                     cur_slide = SlideWithBulletPoints()
 
                 if not isinstance(cur_slide, SlideWithBulletPoints):
                     raise ValueError(f"Error parsing {cur} in {lines}")
 
-                cur_slide.bullet_points.insert(0, self._get_content_only(cur))
+                cur_slide.bullet_points.insert(0, BulletPoint.from_bullet_point_line(cur))
 
             elif cur.startswith("#"):
                 if not cur_slide:
@@ -58,3 +62,4 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
         if cur_slide:
             self._insert_title_slide(slides, cur_slide)
         return slides
+
