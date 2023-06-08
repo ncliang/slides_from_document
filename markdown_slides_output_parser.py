@@ -17,6 +17,10 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
 
         slides.insert(0, title_slide)
 
+    @staticmethod
+    def _get_content_only(line):
+        return line.split(" ", 1)[1]
+
     def parse(self, text: str) -> T:
         lines = text.splitlines()
         lines = [line for line in lines if line]  # remove empty lines
@@ -36,18 +40,18 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
                 if not isinstance(cur_slide, SlideWithBulletPoints):
                     raise ValueError(f"Error parsing {cur} in {lines}")
 
-                cur_slide.bullet_points.insert(0, cur)
+                cur_slide.bullet_points.insert(0, self._get_content_only(cur))
 
             elif cur.startswith("#"):
                 if not cur_slide:
                     cur_slide = SlideWithSubtitle()
-                    cur_slide.subtitle = cur
+                    cur_slide.subtitle = self._get_content_only(cur)
                 elif isinstance(cur_slide, SlideWithBulletPoints):
-                    cur_slide.title = cur
+                    cur_slide.title = self._get_content_only(cur)
                     slides.insert(0, cur_slide)
                     cur_slide = None
                 elif isinstance(cur_slide, SlideWithSubtitle):
-                    cur_slide.title = cur
+                    cur_slide.title = self._get_content_only(cur)
                     self._insert_title_slide(slides, cur_slide)
                     cur_slide = None
 

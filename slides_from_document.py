@@ -1,9 +1,12 @@
 import argparse
+import os
+from functools import reduce
 
 from langchain import PromptTemplate, LLMChain, OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import UnstructuredURLLoader, UnstructuredFileLoader
 from langchain.schema import Document
+from pptx import Presentation
 
 from markdown_slides_output_parser import MarkdownSlidesOutputParser
 
@@ -38,6 +41,8 @@ args = parser.parse_args()
 
 documents = load_documents(args)
 
+print(f"Loaded content with {len(documents[0].page_content)} characters")
+
 llm = ChatOpenAI(temperature=0)
 output_parser = MarkdownSlidesOutputParser()
 prompt = PromptTemplate(
@@ -46,7 +51,16 @@ prompt = PromptTemplate(
     template=PROMPT_TEMPLATE,
 )
 
+print(f"Sending content to ChatGPT for slide generation.")
 chain = LLMChain(llm=llm, prompt=prompt)
 result = chain.run(documents[0].page_content)
 slides = output_parser.parse(result)
-print(slides)
+assert slides
+
+print(f"Generated presentation with {len(slides)} slides. Title slide is `{slides[0].title}`")
+output_file = os.path.join(args.output, "out.pptx")
+print(f"Writing presentation to {output_file}")
+prs = Presentation()
+for slide in slides:
+    slide.add_slide(prs)
+prs.save(output_file)

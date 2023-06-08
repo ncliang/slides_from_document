@@ -23,10 +23,10 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
         self.assertTrue(isinstance(parsed[1], SlideWithBulletPoints))
         self.assertEquals(4, len(parsed[1].bullet_points))
 
-        self.assertEquals("## 發布單位：農業處", parsed[0].subtitle)
+        self.assertEquals("發布單位：農業處", parsed[0].subtitle)
 
-        self.assertEquals("### 雲林縣政府新聞參考資料 112.06.07", parsed[1].title)
-        self.assertEquals("- 雲林縣落花生產量占全台七成", parsed[1].bullet_points[0])
+        self.assertEquals("雲林縣政府新聞參考資料 112.06.07", parsed[1].title)
+        self.assertEquals("雲林縣落花生產量占全台七成", parsed[1].bullet_points[0])
 
     def test_single_title_slide(self):
         parser = MarkdownSlidesOutputParser()
@@ -36,14 +36,14 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
 """)
         self.assertEquals(1, len(parsed))
         self.assertTrue(isinstance(parsed[0], SlideWithSubtitle))
-        self.assertEquals("## 發布單位：農業處", parsed[0].subtitle)
+        self.assertEquals("發布單位：農業處", parsed[0].subtitle)
 
     def test_single_title_only(self):
         parser = MarkdownSlidesOutputParser()
         parsed = parser.parse("""# 落花生不敵低溫及雨害　張麗善:建請農委會儘速公告天然災害救助""")
         self.assertEquals(1, len(parsed))
         self.assertTrue(isinstance(parsed[0], SlideWithSubtitle))
-        self.assertEquals("# 落花生不敵低溫及雨害　張麗善:建請農委會儘速公告天然災害救助", parsed[0].title)
+        self.assertEquals("落花生不敵低溫及雨害　張麗善:建請農委會儘速公告天然災害救助", parsed[0].title)
 
     def test_first_slide_no_subtitle(self):
         parser = MarkdownSlidesOutputParser()
@@ -60,7 +60,7 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
         self.assertTrue(isinstance(parsed[0], SlideWithSubtitle))
         self.assertTrue(isinstance(parsed[1], SlideWithBulletPoints))
         self.assertEquals(4, len(parsed[1].bullet_points))
-        self.assertEquals("# 落花生不敵低溫及雨害　張麗善:建請農委會儘速公告天然災害救助", parsed[0].title)
+        self.assertEquals("落花生不敵低溫及雨害　張麗善:建請農委會儘速公告天然災害救助", parsed[0].title)
         self.assertIsNone(parsed[0].subtitle)
 
     def test_bullet_point_with_numbers(self):
