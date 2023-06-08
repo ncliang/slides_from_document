@@ -35,7 +35,7 @@ options:
 
 核心使用`langchain`呼叫ChatGPT。在prompt裡面讓ChatGPT產生markdown語法的投影片大綱。再透過`python-pptx`套件把markdown寫成ppt檔。
 
-###主要物件
+### 主要物件
 - markdown_slide.py: `SlideWithBulletPoints`, `BulletPoint`, `SlideWithSubtitle`, `SlideWithTitle`
 
 用來代表投影片跟投影片內容的物件。只處理標題投影片跟含有標題跟要點清單的投影片。物件裡`add_slide`方法支援把自己加入到`python-pptx` `Presentation`物件裡
