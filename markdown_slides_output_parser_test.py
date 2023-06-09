@@ -143,3 +143,35 @@ class MarkdownSlidesOutputParserTest(unittest.TestCase):
             "發布單位：教育處",
             parsed[0].bullet_points[0].text)
 
+    def test_bold_or_italic_text(self):
+        parser = MarkdownSlidesOutputParser()
+        parsed = parser.parse("""# 防治家庭暴力25周年雲林論壇
+
+**發布單位：社會處**
+
+*雲林縣政府新聞參考資料 112.06.08*
+""")
+        self.assertEquals(1, len(parsed))
+        self.assertEquals("防治家庭暴力25周年雲林論壇", parsed[0].title)
+        self.assertTrue(isinstance(parsed[0], SlideWithBulletPoints))
+        self.assertEquals(
+            "發布單位：社會處",
+            parsed[0].bullet_points[0].text)
+        self.assertEquals(
+            "雲林縣政府新聞參考資料 112.06.08",
+            parsed[0].bullet_points[1].text)
+
+    def test_handle_horizontal_rule(self):
+        parser = MarkdownSlidesOutputParser()
+        parsed = parser.parse("""## 活動亮點
+
+- 利用繪畫藝術喚起大眾防暴的意識
+- 與會人員一起腦力激盪，檢視現行政策及提出建議改善或精進策略
+
+---
+
+### 活動結束，感謝大家的參與！
+        """)
+        self.assertEquals(2, len(parsed))
+        self.assertEquals("活動亮點", parsed[0].title)
+        self.assertEquals("活動結束，感謝大家的參與！", parsed[1].title)

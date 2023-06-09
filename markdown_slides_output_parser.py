@@ -4,6 +4,9 @@ from markdown_slide import SlideWithBulletPoints, SlideWithSubtitle, BulletPoint
 from util import get_content_only
 
 
+HORIZONTAL_RULE = "---"
+
+
 class MarkdownSlidesOutputParser(BaseOutputParser):
     def get_format_instructions(self) -> str:
         return "投影片格式為markdown格式"
@@ -35,9 +38,15 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
         while lines:
             cur = lines.pop(-1)
             try:
-                if self._is_bullet_point(cur):
+                if cur == HORIZONTAL_RULE:
+                    assert cur_slide
+                    if isinstance(cur_slide, SlideWithSubtitle):
+                        self._insert_title_slide(slides, cur_slide)
+                    else:
+                        slides.insert(0, cur_slide)
+                    cur_slide = None
+                elif self._is_bullet_point(cur):
                     cur_slide = self._handle_bullet_point(cur, cur_slide, lines)
-
                 elif cur.startswith("#"):
                     cur_slide = self._handle_header(cur, cur_slide, slides)
             except Exception as e:
