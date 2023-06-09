@@ -3,6 +3,8 @@ from typing import List
 
 from pptx.presentation import Presentation
 
+from util import get_content_only
+
 
 class SlideWithTitle(object):
     title: str
@@ -43,14 +45,10 @@ class BulletPoint(object):
         self.level = level
 
     @staticmethod
-    def _get_content_only(line):
-        return line.split(" ", 1)[1]
-
-    @staticmethod
     def from_bullet_point_line(line):
         leading_spaces = len(line) - len(line.lstrip(" "))
         return BulletPoint(
-            BulletPoint._get_content_only(line.lstrip(' ')),
+            get_content_only(line.lstrip(" ")),
             int(leading_spaces / 2)
         )
 

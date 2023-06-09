@@ -1,6 +1,7 @@
 from langchain.schema import BaseOutputParser, T
 
 from markdown_slide import SlideWithBulletPoints, SlideWithSubtitle, BulletPoint
+from util import get_content_only
 
 
 class MarkdownSlidesOutputParser(BaseOutputParser):
@@ -18,12 +19,8 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
         slides.insert(0, title_slide)
 
     @staticmethod
-    def _get_content_only(line):
-        return line.split(" ", 1)[1]
-
-    @staticmethod
-    def _is_bullet_point(cur):
-        return cur.startswith("-") or cur.startswith("*") or cur[0].isdigit() or cur.startswith(" ")
+    def _is_bullet_point(line):
+        return line and not line.startswith("#")
 
     def parse(self, text: str) -> T:
         lines = text.splitlines()
@@ -37,29 +34,38 @@ class MarkdownSlidesOutputParser(BaseOutputParser):
         # 演算法是從後面往前看。看到bullet point就加到目前的
         while lines:
             cur = lines.pop(-1)
-            if self._is_bullet_point(cur):
-                if not cur_slide:
-                    cur_slide = SlideWithBulletPoints()
+            try:
+                if self._is_bullet_point(cur):
+                    cur_slide = self._handle_bullet_point(cur, cur_slide, lines)
 
-                if not isinstance(cur_slide, SlideWithBulletPoints):
-                    raise ValueError(f"Error parsing {cur} in {lines}")
-
-                cur_slide.bullet_points.insert(0, BulletPoint.from_bullet_point_line(cur))
-
-            elif cur.startswith("#"):
-                if not cur_slide:
-                    cur_slide = SlideWithSubtitle()
-                    cur_slide.subtitle = self._get_content_only(cur)
-                elif isinstance(cur_slide, SlideWithBulletPoints):
-                    cur_slide.title = self._get_content_only(cur)
-                    slides.insert(0, cur_slide)
-                    cur_slide = None
-                elif isinstance(cur_slide, SlideWithSubtitle):
-                    cur_slide.title = self._get_content_only(cur)
-                    self._insert_title_slide(slides, cur_slide)
-                    cur_slide = None
+                elif cur.startswith("#"):
+                    cur_slide = self._handle_header(cur, cur_slide, slides)
+            except Exception as e:
+                print(f"Exception handling line '{cur}'. Exception: '{e}'. Skipping")
 
         if cur_slide:
             self._insert_title_slide(slides, cur_slide)
         return slides
+
+    def _handle_header(self, cur, cur_slide, slides):
+        if not cur_slide:
+            cur_slide = SlideWithSubtitle()
+            cur_slide.subtitle = get_content_only(cur)
+        elif isinstance(cur_slide, SlideWithBulletPoints):
+            cur_slide.title = get_content_only(cur)
+            slides.insert(0, cur_slide)
+            cur_slide = None
+        elif isinstance(cur_slide, SlideWithSubtitle):
+            cur_slide.title = get_content_only(cur)
+            self._insert_title_slide(slides, cur_slide)
+            cur_slide = None
+        return cur_slide
+
+    def _handle_bullet_point(self, cur, cur_slide, lines):
+        if not cur_slide:
+            cur_slide = SlideWithBulletPoints()
+        if not isinstance(cur_slide, SlideWithBulletPoints):
+            raise ValueError(f"Error parsing {cur} in {lines}")
+        cur_slide.bullet_points.insert(0, BulletPoint.from_bullet_point_line(cur))
+        return cur_slide
 
