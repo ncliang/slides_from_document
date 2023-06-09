@@ -33,7 +33,8 @@ class SlideWithSubtitle(SlideWithTitle):
         subtitle = slide.placeholders[1]
 
         title.text = self.title
-        subtitle.text = self.subtitle
+        if self.subtitle:
+            subtitle.text = self.subtitle
 
 
 class BulletPoint(object):

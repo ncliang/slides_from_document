@@ -9,7 +9,7 @@ from pptx import Presentation
 
 from markdown_slides_output_parser import MarkdownSlidesOutputParser
 
-PROMPT_TEMPLATE = """用以下內容產生一份投影片。{format_instructions}
+PROMPT_TEMPLATE = """用以下內容產生一份沒有圖片的投影片。{format_instructions}
 
 內容：
 
@@ -30,6 +30,7 @@ def load_documents(cmdline_args):
 
 parser = argparse.ArgumentParser(description="Generate slides from provided content using ChatGPT")
 parser.add_argument("--output", type=str, required=True, help="Location of generated slide")
+parser.add_argument("--template", type=str, help="Optional pptx template to use for slide generation")
 
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--content", type=str, help="Content to use for slide generation")
@@ -59,8 +60,14 @@ assert slides
 
 print(f"Generated presentation with {len(slides)} slides. Title slide is `{slides[0].title}`")
 output_file = os.path.join(args.output, "out.pptx")
-print(f"Writing presentation to {output_file}")
+
 prs = Presentation()
+if args.template:
+    print(f"Reading from specified template file {args.template}")
+    prs = Presentation(args.template)
+
 for slide in slides:
     slide.add_slide(prs)
+
+print(f"Writing presentation to {output_file}")
 prs.save(output_file)
