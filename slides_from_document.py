@@ -7,6 +7,7 @@ from langchain.document_loaders import UnstructuredURLLoader, UnstructuredFileLo
 from langchain.schema import Document
 from pptx import Presentation
 
+from formosa_foundation_model import FormosaFoundationModel
 from markdown_slides_output_parser import MarkdownSlidesOutputParser
 
 PROMPT_TEMPLATE = """用以下內容產生一份沒有圖片的投影片。{format_instructions}
@@ -43,7 +44,8 @@ documents = load_documents(args)
 
 print(f"Loaded content with {len(documents[0].page_content)} characters")
 
-llm = ChatOpenAI(temperature=0)
+# llm = ChatOpenAI(temperature=0)
+llm = FormosaFoundationModel(temperature=0.01, max_new_tokens=1024)
 output_parser = MarkdownSlidesOutputParser()
 prompt = PromptTemplate(
     input_variables=["content"],
